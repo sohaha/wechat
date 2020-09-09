@@ -43,20 +43,29 @@ const (
 )
 
 var (
-	http = zhttp.New()
-	log  = zlog.New("[Wx] ")
-	apps = map[string]string{}
+	log   = zlog.New("[Wx] ")
+	apps  = map[string]string{}
+	debug bool
 )
 
 func init() {
-	zhttp.Debug = false
 	log.ResetFlags(zlog.BitLevel | zlog.BitTime)
-	log.SetLogLevel(zlog.LogWarn)
+	Debug(false)
 }
 
-func Debug() {
-	zhttp.Debug = true
-	log.SetLogLevel(zlog.LogDump)
+func Debug(disable ...bool) {
+	state := true
+	if len(disable) > 0 {
+		state = disable[0]
+	}
+	if state {
+		debug = true
+		log.SetLogLevel(zlog.LogDump)
+	} else {
+		debug = false
+		log.SetLogLevel(zlog.LogWarn)
+	}
+
 }
 
 var cacheData []byte
@@ -70,10 +79,8 @@ func LoadCacheData(path string) (err error) {
 	}
 	var data []byte
 	var now = time.Now().Unix()
-	data, err = ioutil.ReadFile(path)
+	data, _ = ioutil.ReadFile(path)
 	cacheData = data
-
-
 	zjson.ParseBytes(data).ForEach(func(key, value zjson.Res) bool {
 		k := strings.Split(key.String(), "|")
 		if len(k) < 2 || (k[0] == "" || k[1] == "") {
@@ -129,7 +136,6 @@ func SaveCacheData(path string) (json string, err error) {
 	now := time.Now().Unix()
 	for k, v := range apps {
 		log.Debug("SaveCacheData: ", cachePrefix+v+k)
-
 		cache := zcache.New(cachePrefix + v + k)
 		cache.ForEachRaw(func(key string, value *zcache.Item) bool {
 			title := k + "\\|" + v
