@@ -8,8 +8,8 @@ import (
 
 func TestWechat(t *testing.T) {
 	wx := wechat.New(&wechat.Mp{
-		AppID:     "wx6a24b584b45b6791",
-		AppSecret: "cc31573bfa7af4cdc2ba327357af9234",
+		AppID:     "wx9d1fcb71007a71b0",
+		AppSecret: "c4132441ded3301bda2d2373609959e1",
 	})
 	t.Log(wx.GetAccessToken())
 }
